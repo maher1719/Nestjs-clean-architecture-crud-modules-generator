@@ -148,7 +148,21 @@ When you run the generator, it creates the following Clean Architecture folder s
 ```
 
 ---
+## 🏢 Enterprise & Commercial Licensing
 
+This project is licensed under the **AGPL-3.0 License**. This means it is completely free to use for open-source, educational, and personal projects, provided you comply with the AGPL terms (which require derivative works to remain open-source).
+
+**Are you an Enterprise or building a closed-source SaaS?**
+If your company wishes to use this generator (and the code it produces) in proprietary, closed-source commercial applications without being bound by the AGPL open-source requirements, you must obtain a **Commercial License**.
+
+A commercial license grants you the right to:
+- Use the generated Clean Architecture modules in closed-source, proprietary products.
+- Keep your application's source code private.
+- Receive priority support and custom template modifications.
+
+📧 **Contact for Enterprise Pricing:** ba.maher94@gmail.com
+
+---
 
 ## 📝 License
 
