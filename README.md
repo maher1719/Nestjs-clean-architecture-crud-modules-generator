@@ -149,11 +149,6 @@ When you run the generator, it creates the following Clean Architecture folder s
 
 ---
 
-## 🤝 Contributing
-
-Contributions are welcome! If you have ideas for new field types, relation types, or want to add support for other ORMs (like Prisma or Mongoose), feel free to open an Issue or submit a Pull Request.
-
----
 
 ## 📝 License
 
