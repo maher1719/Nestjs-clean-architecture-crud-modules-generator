@@ -166,17 +166,57 @@ export class List${EntityName}Handler {
   }
 }
 """
+REPLACE_COMMAND_TEMPLATE = """\
+export class Replace${EntityName}Command {
+  constructor(
+    public readonly id: string,
+${replaceCommandParameters}
+  ) {}
+}
+"""
 
+REPLACE_HANDLER_TEMPLATE = """\
+import { Injectable, NotFoundException } from '@nestjs/common';
+
+import { ${EntityName} } from '../../../domain/entities/${entityKebab}.entity';
+import { ${EntityName}Repository } from '../../../domain/repositories/${entityKebab}.repository';
+
+import { Replace${EntityName}Command } from './replace-${entityKebab}.command';
+
+@Injectable()
+export class Replace${EntityName}Handler {
+  constructor(
+    private readonly repository: ${EntityName}Repository,
+  ) {}
+
+  async execute(
+    command: Replace${EntityName}Command,
+  ): Promise<${EntityName}> {
+    const entity = await this.repository.findById(command.id);
+
+    if (!entity) {
+      throw new NotFoundException('${EntityName} not found');
+    }
+
+${updateHandlerAssignments}
+
+    return this.repository.save(entity);
+  }
+}
+"""
 
 APPLICATION_TEMPLATES = {
     "application/commands/create-entity/create-entity.command.ts.tpl": CREATE_COMMAND_TEMPLATE,
     "application/commands/create-entity/create-entity.handler.ts.tpl": CREATE_HANDLER_TEMPLATE,
     "application/commands/update-entity/update-entity.command.ts.tpl": UPDATE_COMMAND_TEMPLATE,
     "application/commands/update-entity/update-entity.handler.ts.tpl": UPDATE_HANDLER_TEMPLATE,
+    "application/commands/replace-entity/replace-entity.command.ts.tpl": REPLACE_COMMAND_TEMPLATE,
+    "application/commands/replace-entity/replace-entity.handler.ts.tpl": REPLACE_HANDLER_TEMPLATE,
     "application/commands/delete-entity/delete-entity.command.ts.tpl": DELETE_COMMAND_TEMPLATE,
     "application/commands/delete-entity/delete-entity.handler.ts.tpl": DELETE_HANDLER_TEMPLATE,
     "application/queries/get-entity/get-entity.query.ts.tpl": GET_QUERY_TEMPLATE,
     "application/queries/get-entity/get-entity.handler.ts.tpl": GET_HANDLER_TEMPLATE,
     "application/queries/list-entity/list-entity.query.ts.tpl": LIST_QUERY_TEMPLATE,
     "application/queries/list-entity/list-entity.handler.ts.tpl": LIST_HANDLER_TEMPLATE,
+    
 }

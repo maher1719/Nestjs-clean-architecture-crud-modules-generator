@@ -18,6 +18,16 @@ export class Update${EntityName}Dto {
 ${updateDtoFields}
 }
 """
+REPLACE_DTO_TEMPLATE = """\
+import { ApiProperty } from '@nestjs/swagger';
+import {
+${replaceValidatorImports},
+} from 'class-validator';
+
+export class Replace${EntityName}Dto {
+${replaceDtoFields}
+}
+"""
 
 
 CONTROLLER_TEMPLATE = """\
@@ -48,8 +58,14 @@ import { Get${EntityName}Handler } from '../../application/queries/get-${entityK
 import { List${EntityName}Query } from '../../application/queries/list-${entityKebab}/list-${entityKebab}.query';
 import { List${EntityName}Handler } from '../../application/queries/list-${entityKebab}/list-${entityKebab}.handler';
 
+import { Replace${EntityName}Command } from '../../application/commands/replace-${entityKebab}/replace-${entityKebab}.command';
+import { Replace${EntityName}Handler } from '../../application/commands/replace-${entityKebab}/replace-${entityKebab}.handler';
+
+
 import { Create${EntityName}Dto } from '../dto/create-${entityKebab}.dto';
 import { Update${EntityName}Dto } from '../dto/update-${entityKebab}.dto';
+import { Replace${EntityName}Dto } from '../dto/replace-${entityKebab}.dto';
+
 
 @ApiTags('${moduleName}')
 @Controller('${routeName}')
@@ -58,6 +74,8 @@ export class ${EntityName}Controller {
     private readonly createHandler: Create${EntityName}Handler,
     private readonly updateHandler: Update${EntityName}Handler,
     private readonly deleteHandler: Delete${EntityName}Handler,
+    private readonly replaceHandler: Replace${EntityName}Handler,
+
     private readonly getHandler: Get${EntityName}Handler,
     private readonly listHandler: List${EntityName}Handler,
   ) {}
@@ -102,14 +120,14 @@ ${createControllerArguments}
   @ApiResponse({ status: 404, description: '${EntityName} not found.' })
   async replace(
     @Param('id') id: string,
-    @Body() dto: Update${EntityName}Dto,
+    @Body() dto: Replace${EntityName}Dto,
   ) {
-    const command = new Update${EntityName}Command(
+    const command = new Replace${EntityName}Command(
       id,
-${updateControllerArguments}
+      ${replaceControllerArguments}
     );
 
-    return this.updateHandler.execute(command);
+    return this.replaceHandler.execute(command);
   }
 
   @Patch(':id')
@@ -147,4 +165,5 @@ PRESENTATION_TEMPLATES = {
     "presentation/controllers/entity.controller.ts.tpl": CONTROLLER_TEMPLATE,
     "presentation/dto/create-entity.dto.ts.tpl": CREATE_DTO_TEMPLATE,
     "presentation/dto/update-entity.dto.ts.tpl": UPDATE_DTO_TEMPLATE,
+    "presentation/dto/replace-entity.dto.ts.tpl": REPLACE_DTO_TEMPLATE,
 }

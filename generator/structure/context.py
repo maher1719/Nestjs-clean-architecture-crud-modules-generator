@@ -90,6 +90,11 @@ def build_module_context(
         f"from './application/queries/list-{entity_kebab}/list-{entity_kebab}.handler';"
     )
 
+    replace_handler_import = (
+        f"import {{ Replace{entity_name}Handler }} "
+        f"from './application/commands/replace-{entity_kebab}/replace-{entity_kebab}.handler';"
+    )
+
     repository_import = (
         f"import {{ {entity_name}Repository }} "
         f"from './domain/repositories/{entity_kebab}.repository';"
@@ -108,6 +113,7 @@ def build_module_context(
         controller_import,
         create_handler_import,
         update_handler_import,
+        replace_handler_import,
         delete_handler_import,
         get_handler_import,
         list_handler_import,
@@ -119,6 +125,7 @@ def build_module_context(
     module_providers = [
         f"    Create{entity_name}Handler,",
         f"    Update{entity_name}Handler,",
+        f"    Replace{entity_name}Handler,",
         f"    Delete{entity_name}Handler,",
         f"    Get{entity_name}Handler,",
         f"    List{entity_name}Handler,",

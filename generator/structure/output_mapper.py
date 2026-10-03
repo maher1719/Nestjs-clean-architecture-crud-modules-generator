@@ -44,6 +44,21 @@ def build_output_mapping(
             f"delete-{entity_kebab}.handler.ts"
         ),
 
+        # Application replace commands
+        "application/commands/replace-entity/replace-entity.command.ts.tpl": (
+            f"application/commands/replace-{entity_kebab}/"
+            f"replace-{entity_kebab}.command.ts"
+        ),
+        "application/commands/replace-entity/replace-entity.handler.ts.tpl": (
+            f"application/commands/replace-{entity_kebab}/"
+            f"replace-{entity_kebab}.handler.ts"
+        ),
+
+        # Presentation replace DTO
+        "presentation/dto/replace-entity.dto.ts.tpl": (
+            f"presentation/dto/replace-{entity_kebab}.dto.ts"
+        ),
+
         # Application queries
         "application/queries/get-entity/get-entity.query.ts.tpl": (
             f"application/queries/get-{entity_kebab}/"

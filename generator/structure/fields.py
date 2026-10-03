@@ -487,25 +487,15 @@ def build_typeorm_imports(
 
     return "\n".join(lines)
 
+def build_replace_command_parameters(fields: List[Field]) -> str:
+    return build_create_command_parameters(fields)
 
-"""def build_field_context(fields: List[Field]) -> Dict[str, str]:
-    return {
-        "entityProps": build_entity_props(fields),
-        "createEntityParameters": build_create_entity_parameters(fields),
-        "createEntityFields": build_create_entity_fields(fields),
-        "createCommandParameters": build_create_command_parameters(fields),
-        "createHandlerArguments": build_create_handler_arguments(fields),
-        "createControllerArguments": build_create_controller_arguments(fields),
-        "updateCommandParameters": build_update_command_parameters(fields),
-        "updateControllerArguments": build_update_controller_arguments(fields),
-        "updateMethods": build_update_methods(fields),
-        "getters": build_getters(fields),
-        "updateHandlerAssignments": build_update_handler_assignments(fields),
-        "createDtoFields": build_create_dto_fields(fields),
-        "updateDtoFields": build_update_dto_fields(fields),
-        "ormToDomainFields": build_orm_to_domain_fields(fields),
-        "domainToOrmFields": build_domain_to_orm_fields(fields),
-    }"""
+def build_replace_controller_arguments(fields: List[Field]) -> str:
+    return build_create_controller_arguments(fields)
+
+def build_replace_dto_fields(fields: List[Field]) -> str:
+    return build_create_dto_fields(fields)
+
 def build_field_context(fields: List[Field]) -> Dict[str, str]:
     return {
         "entityProps": build_entity_props(fields),
@@ -525,4 +515,8 @@ def build_field_context(fields: List[Field]) -> Dict[str, str]:
         "updateDtoFields": build_update_dto_fields(fields),
         "ormToDomainFields": build_orm_to_domain_fields(fields),
         "domainToOrmFields": build_domain_to_orm_fields(fields),
+        "replaceCommandParameters": build_replace_command_parameters(fields),
+        "replaceControllerArguments": build_replace_controller_arguments(fields),
+        "replaceDtoFields": build_replace_dto_fields(fields),
+        "replaceValidatorImports": build_validator_imports(fields, required=True),
     }
