@@ -1,3 +1,26 @@
+CREATE_DTO_TEMPLATE = """\
+  import { ApiProperty } from '@nestjs/swagger';
+import {
+${createValidatorImports},
+} from 'class-validator';
+export class Create${EntityName}Dto {
+${createDtoFields}
+}
+"""
+
+
+UPDATE_DTO_TEMPLATE = """\
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {
+${updateValidatorImports},
+} from 'class-validator';
+export class Update${EntityName}Dto {
+${updateDtoFields}
+}
+"""
+
+
+CONTROLLER_TEMPLATE = """\
   import {
   Body,
   Controller,
@@ -116,4 +139,12 @@ ${updateControllerArguments}
       new Delete${EntityName}Command(id),
     );
   }
+}
+"""
+
+
+PRESENTATION_TEMPLATES = {
+    "presentation/controllers/entity.controller.ts.tpl": CONTROLLER_TEMPLATE,
+    "presentation/dto/create-entity.dto.ts.tpl": CREATE_DTO_TEMPLATE,
+    "presentation/dto/update-entity.dto.ts.tpl": UPDATE_DTO_TEMPLATE,
 }

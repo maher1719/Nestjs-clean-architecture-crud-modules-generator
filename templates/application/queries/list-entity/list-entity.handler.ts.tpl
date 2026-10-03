@@ -1,18 +1,19 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { List${EntityName}Query } from './list-${entityKebab}.query';
+import { Injectable } from '@nestjs/common';
+
 import { ${EntityName} } from '../../../domain/entities/${entityKebab}.entity';
 import { ${EntityName}Repository } from '../../../domain/repositories/${entityKebab}.repository';
+
+import { List${EntityName}Query } from './list-${entityKebab}.query';
 
 @Injectable()
 export class List${EntityName}Handler {
   constructor(
-    @Inject(${EntityName}Repository)
-    private readonly ${entityName}Repository: ${EntityName}Repository,
+    private readonly repository: ${EntityName}Repository,
   ) {}
 
   async execute(
-    _query: List${EntityName}Query,
+    query: List${EntityName}Query,
   ): Promise<${EntityName}[]> {
-    return this.${entityName}Repository.findAll();
+    return this.repository.findAll();
   }
 }

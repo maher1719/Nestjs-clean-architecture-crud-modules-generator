@@ -1,3 +1,4 @@
+MODULE_TEMPLATE = """\
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 ${moduleImports}
@@ -15,3 +16,9 @@ ${moduleExports}
   ],
 })
 export class ${EntityName}Module {}
+"""
+
+
+MODULE_TEMPLATES = {
+    "module.ts.tpl": MODULE_TEMPLATE,
+}

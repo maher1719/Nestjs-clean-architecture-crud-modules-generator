@@ -1,0 +1,14 @@
+from .application import APPLICATION_TEMPLATES
+from .domain import DOMAIN_TEMPLATES
+from .infrastructure import INFRASTRUCTURE_TEMPLATES
+from .module import MODULE_TEMPLATES
+from .presentation import PRESENTATION_TEMPLATES
+
+
+TEMPLATE_REGISTRY = {
+    **DOMAIN_TEMPLATES,
+    **APPLICATION_TEMPLATES,
+    **INFRASTRUCTURE_TEMPLATES,
+    **PRESENTATION_TEMPLATES,
+    **MODULE_TEMPLATES,
+}

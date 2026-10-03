@@ -1,9 +1,7 @@
-import { ApiPropertyOptional } from '@nestjs/swagger';
-
+import { ApiProperty } from '@nestjs/swagger';
 import {
-  ${updateValidatorImports},
+${updateValidatorImports},
 } from 'class-validator';
-
 export class Update${EntityName}Dto {
 ${updateDtoFields}
 }
