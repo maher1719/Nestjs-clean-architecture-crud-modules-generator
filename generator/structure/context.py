@@ -7,6 +7,7 @@ from .fields import (
     normalize_fields,
     normalize_relations,
 )
+from .relations.registry import build_relations_context
 from .naming import camel_case, kebab_case
 
 
@@ -23,6 +24,13 @@ def build_context(config: Dict[str, Any]) -> Dict[str, str]:
     fields = normalize_fields(entity.get("fields", []))
     relations = normalize_relations(config.get("relations", []))
 
+    # Build the relation context (all 4 types) via the registry
+    relations_context = build_relations_context(
+        relations,
+        current_module=module_name,
+        current_entity=entity_name,
+    )
+
     context = {
         "EntityName": entity_name,
         "entityName": entity_name_lower,
@@ -35,15 +43,19 @@ def build_context(config: Dict[str, Any]) -> Dict[str, str]:
 
     context.update(build_field_context(fields))
 
+    # Columns get the relation's uniqueFields (for one-to-one FKs)
     context["ormColumns"] = build_orm_columns(
         fields,
-        relations,
-        module_name,
+        unique_fields=relations_context["uniqueFields"],
     )
 
+    # Relations are rendered separately from columns
+    context["ormRelations"] = relations_context["ormRelations"]
+    context["relationImports"] = relations_context["relationImports"]
+
+    # Merge base TypeORM imports with relation decorators
     context["typeormImports"] = build_typeorm_imports(
-        relations,
-        module_name,
+        relations_context["relationTypeOrmImports"]
     )
 
     context.update(
@@ -54,7 +66,6 @@ def build_context(config: Dict[str, Any]) -> Dict[str, str]:
     )
 
     return context
-
 
 def build_module_context(
     entity_name: str,

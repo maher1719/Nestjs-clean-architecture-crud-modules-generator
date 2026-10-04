@@ -374,14 +374,37 @@ def build_domain_to_orm_fields(fields: List[Field]) -> str:
 
     return "\n".join(lines)
 
+# ----------------------------------------------------------------------
+# TypeORM imports (base + relation decorators, merged into ONE statement)
+# ----------------------------------------------------------------------
 
-def build_orm_columns(
-    fields: List[Field],
-    relations: List[Relation],
-    current_module: str,
-) -> str:
+BASE_TYPEORM_IMPORTS = [
+    "Column",
+    "CreateDateColumn",
+    "Entity",
+    "PrimaryColumn",
+    "UpdateDateColumn",
+]
+
+
+def build_typeorm_imports(relation_decorators) -> str:
+    merged = sorted(set(BASE_TYPEORM_IMPORTS) | set(relation_decorators or []))
+    lines = ["import {"]
+    for item in merged:
+        lines.append(f"  {item},")
+    lines.append("} from 'typeorm';")
+    return "\n".join(lines)
+
+
+# ----------------------------------------------------------------------
+# ORM columns (relations are NO LONGER inlined here — they go to ${ormRelations})
+# ----------------------------------------------------------------------
+
+def build_orm_columns(fields: List[Field], *, unique_fields=None) -> str:
+    if unique_fields is None:
+        unique_fields = set()
+
     lines = []
-
     for field in fields:
         name = field["name"]
         field_ts_type = ts_type(field)
@@ -390,21 +413,20 @@ def build_orm_columns(
         options = []
 
         orm_type = field.get("orm_type")
-
         if orm_type:
             options.append(f"type: '{orm_type}'")
         else:
             options.append(f"type: '{typeorm_type(field_type)}'")
 
         length = field.get("length")
-
         if length:
             options.append(f"length: {length}")
 
         nullable = bool(field.get("nullable", False))
         options.append(f"nullable: {str(nullable).lower()}")
 
-        if field.get("unique", False):
+        # Unique comes from the field itself OR from a relation (one-to-one FK)
+        if field.get("unique", False) or name in unique_fields:
             options.append("unique: true")
 
         options_string = "{ " + ", ".join(options) + " }"
@@ -413,79 +435,7 @@ def build_orm_columns(
         lines.append(f"  {name}: {field_ts_type};")
         lines.append("")
 
-    for relation in relations:
-        relation_type = str(relation.get("type", "")).lower()
-
-        if relation_type != "many-to-one":
-            continue
-
-        relation_name = relation.get("name")
-        target = relation.get("target")
-
-        if not relation_name or not target:
-            continue
-
-        target_class = f"{target}OrmEntity"
-        nullable = bool(relation.get("nullable", True))
-        on_delete = str(relation.get("onDelete", "NO ACTION")).upper()
-        foreign_key = relation.get("foreignKey")
-
-        lines.append(
-            f"  @ManyToOne(() => {target_class}, "
-            f"{{ nullable: {str(nullable).lower()}, onDelete: '{on_delete}' }})"
-        )
-
-        if foreign_key:
-            lines.append(f"  @JoinColumn({{ name: '{foreign_key}' }})")
-
-        lines.append(f"  {relation_name}: {target_class};")
-        lines.append("")
-
     return "\n".join(lines).rstrip()
-
-
-def build_typeorm_imports(
-    relations: List[Relation],
-    current_module: str,
-) -> str:
-    decorators = set()
-    imports = []
-
-    for relation in relations:
-        relation_type = str(relation.get("type", "")).lower()
-
-        if relation_type == "many-to-one":
-            decorators.add("ManyToOne")
-            decorators.add("JoinColumn")
-
-        target = relation.get("target")
-        target_module = relation.get("targetModule")
-
-        if not target:
-            continue
-
-        target_kebab = kebab_case(target)
-
-        if target_module and target_module != current_module:
-            import_path = (
-                f"../../../../{target_module}/"
-                f"infrastructure/persistence/typeorm/"
-                f"{target_kebab}.orm-entity"
-            )
-        else:
-            import_path = f"./{target_kebab}.orm-entity"
-
-        imports.append(f"import {{ {target}OrmEntity }} from '{import_path}';")
-
-    lines = []
-
-    if decorators:
-        decorator_list = ", ".join(sorted(decorators))
-        lines.append(f"import {{ {decorator_list} }} from 'typeorm';")
-
-    lines.extend(sorted(set(imports)))
-
-    return "\n".join(lines)
 
 def build_replace_command_parameters(fields: List[Field]) -> str:
     return build_create_command_parameters(fields)

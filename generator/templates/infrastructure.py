@@ -1,12 +1,6 @@
 ORM_ENTITY_TEMPLATE = """\
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  PrimaryColumn,
-  UpdateDateColumn,
-} from 'typeorm';
 ${typeormImports}
+${relationImports}
 
 @Entity('${tableName}')
 export class ${EntityName}OrmEntity {
@@ -14,6 +8,8 @@ export class ${EntityName}OrmEntity {
   id: string;
 
 ${ormColumns}
+
+${ormRelations}
 
   @CreateDateColumn()
   createdAt: Date;
