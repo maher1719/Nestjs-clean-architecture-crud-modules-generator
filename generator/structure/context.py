@@ -8,7 +8,7 @@ from .fields import (
     normalize_relations,
 )
 from .relations.registry import build_relations_context
-from .naming import camel_case, kebab_case
+from .naming import camel_case, kebab_case, pascal_case
 
 
 def build_context(config: Dict[str, Any]) -> Dict[str, str]:
@@ -67,6 +67,63 @@ def build_context(config: Dict[str, Any]) -> Dict[str, str]:
 
     return context
 
+def build_nested_controller_specs(config, base_context):
+    """One read-only nested controller per many-to-one relation."""
+    specs = []
+    relations = config.get("relations") or []
+    child_module = config["module"]
+
+    for rel in relations:
+        if str(rel.get("type", "")).lower() != "many-to-one":
+            continue
+
+        parent_entity = rel["target"]          # e.g. "Post"
+        parent_module = rel["targetModule"]    # e.g. "posts"
+        fk_field = rel["foreignKey"]           # e.g. "postId"
+
+        nested_name = f"{parent_entity}{pascal_case(child_module)}Controller"
+        nested_file = f"{kebab_case(parent_entity)}-{child_module}.controller.ts"
+
+        nested_context = dict(base_context)
+        nested_context.update({
+            "NestedControllerName": nested_name,
+            "parentRoute": parent_module,
+            "childRoute": child_module,
+            "fkParam": fk_field,
+            "fkField": fk_field,
+            "parentEntityLower": camel_case(parent_entity),
+        })
+
+        specs.append({
+            "name": nested_name,
+            "file": nested_file,
+            "output_path": f"presentation/controllers/{nested_file}",
+            "context": nested_context,
+        })
+
+    return specs
+
+
+def build_nested_module_context(nested_specs):
+    """Values injected into module.ts to register nested controllers."""
+    if not nested_specs:
+        return {
+            "nestedControllers": "",
+            "nestedControllerImports": "",
+        }
+
+    controllers = ",\n".join(f"    {s['name']}" for s in nested_specs)
+
+    imports = "\n".join(
+        f"import {{ {s['name']} }} "
+        f"from './presentation/controllers/{s['file'][:-3]}';"
+        for s in nested_specs
+    )
+
+    return {
+        "nestedControllers": controllers,
+        "nestedControllerImports": imports,
+    }
 def build_module_context(
     entity_name: str,
     entity_kebab: str,

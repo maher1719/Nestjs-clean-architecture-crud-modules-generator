@@ -1,0 +1,72 @@
+module: posts
+entity:
+  name: Post
+  table: posts
+  fields:
+    - name: title
+      type: string
+    - name: content
+      type: string
+    - name: authorId
+      type: uuid
+    - name: coverImageId
+      type: uuid
+      nullable: true
+
+relations:
+  # many-to-one — Post belongs to an author
+  - name: author
+    type: many-to-one
+    target: User
+    targetModule: users
+    foreignKey: authorId
+    nullable: false
+    onDelete: cascade
+
+  # one-to-many — Post has many comments
+  - name: comments
+    type: one-to-many
+    target: Comment
+    targetModule: comments
+    mappedBy: post
+
+  # one-to-many — Post has many likes
+  - name: likes
+    type: one-to-many
+    target: Like
+    targetModule: likes
+    mappedBy: post
+
+  # one-to-one (OWNING, nullable) — Post has one cover image
+  - name: coverImage
+    type: one-to-one
+    target: Image
+    targetModule: images
+    foreignKey: coverImageId
+    nullable: true
+    onDelete: set-null
+
+  # many-to-many — Post has many tags
+  - name: tags
+    type: many-to-many
+    target: Tag
+    targetModule: tags
+    joinTable: post_tags
+    joinColumn: post_id
+    inverseJoinColumn: tag_id
+
+  # many-to-many — Post co-written with many authors
+  - name: coAuthors
+    type: many-to-many
+    target: User
+    targetModule: users
+    joinTable: post_authors
+    joinColumn: post_id
+    inverseJoinColumn: author_id
+
+operations:
+  - create
+  - list
+  - get
+  - update
+  - delete

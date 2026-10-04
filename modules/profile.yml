@@ -1,0 +1,26 @@
+module: profiles
+entity:
+  name: Profile
+  table: profiles
+  fields:
+    - name: bio
+      type: string
+    - name: userId
+      type: uuid
+
+relations:
+  # one-to-one (OWNING side — Profile holds the FK, gets unique:true)
+  - name: user
+    type: one-to-one
+    target: User
+    targetModule: users
+    foreignKey: userId
+    nullable: false
+    onDelete: cascade
+
+operations:
+  - create
+  - list
+  - get
+  - update
+  - delete

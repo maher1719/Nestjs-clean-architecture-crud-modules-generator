@@ -159,6 +159,33 @@ ${updateControllerArguments}
   }
 }
 """
+NESTED_LIST_CONTROLLER_TEMPLATE = """\
+import { Controller, Get, Param } from '@nestjs/common';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
+
+import { List${EntityName}Query } from '../../application/queries/list-${entityKebab}/list-${entityKebab}.query';
+import { List${EntityName}Handler } from '../../application/queries/list-${entityKebab}/list-${entityKebab}.handler';
+
+@ApiTags('${parentRoute} > ${childRoute}')
+@Controller('${parentRoute}/:${fkParam}/${childRoute}')
+export class ${NestedControllerName} {
+  constructor(
+    private readonly listHandler: List${EntityName}Handler,
+  ) {}
+
+  @Get()
+  @ApiOperation({ summary: 'List ${childRoute} belonging to a ${parentEntityLower}' })
+  async findAllForParent(
+    @Param('${fkParam}') ${fkParam}: string,
+  ) {
+    return this.listHandler.execute(
+      new List${EntityName}Query({ ${fkField}: ${fkParam} }),
+    );
+  }
+}
+"""
+
+
 
 
 PRESENTATION_TEMPLATES = {
@@ -166,4 +193,5 @@ PRESENTATION_TEMPLATES = {
     "presentation/dto/create-entity.dto.ts.tpl": CREATE_DTO_TEMPLATE,
     "presentation/dto/update-entity.dto.ts.tpl": UPDATE_DTO_TEMPLATE,
     "presentation/dto/replace-entity.dto.ts.tpl": REPLACE_DTO_TEMPLATE,
+    "presentation/controllers/nested-list.controller.ts.tpl": NESTED_LIST_CONTROLLER_TEMPLATE,
 }

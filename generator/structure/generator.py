@@ -4,7 +4,7 @@ from typing import Any, Dict
 from ..filesystem import ensure_directory
 from .app_module_updater import update_app_module # <-- IMPORT THIS
 from .config_loader import validate_config
-from .context import build_context
+from .context import build_context,build_nested_controller_specs,build_nested_module_context
 from .output_mapper import build_output_mapping
 from .rendering import load_template, render_template
 
@@ -26,6 +26,11 @@ def generate_module(
     module_name = config["module"]
 
     context = build_context(config)
+
+
+    nested_specs = build_nested_controller_specs(config, context)
+    context.update(build_nested_module_context(nested_specs))
+
 
     output_mapping = build_output_mapping(
         entity_name=entity_name,
@@ -74,7 +79,25 @@ def generate_module(
 
     module_file_path = module_root / f"{module_name}.module.ts"
     module_class_name = f"{entity_name}Module"
+    for spec in nested_specs:
+        template = load_template(
+            templates_dir,
+            "presentation/controllers/nested-list.controller.ts.tpl",
+        )
+        rendered = render_template(template, spec["context"])
+        destination = module_root / spec["output_path"]
 
+        if dry_run:
+            print(f"[dry-run] {destination}")
+            continue
+
+        ensure_directory(destination.parent)
+        if destination.exists() and not force:
+            print(f"[skipped] {destination}")
+            continue
+
+        destination.write_text(rendered, encoding="utf-8")
+        print(f"[created] {destination}")
     update_app_module(
         app_module_path=app_module_path,
         module_file_path=module_file_path,

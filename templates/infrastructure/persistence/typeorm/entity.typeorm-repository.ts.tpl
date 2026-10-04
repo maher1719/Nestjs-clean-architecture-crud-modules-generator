@@ -36,13 +36,22 @@ export class TypeOrm${EntityName}Repository extends ${EntityName}Repository {
     return ${EntityName}PersistenceMapper.toDomain(orm);
   }
 
-  async findAll(): Promise<${EntityName}[]> {
+  /*async findAll(): Promise<${EntityName}[]> {
     const items = await this.repository.find();
 
     return items.map((item) => ${EntityName}PersistenceMapper.toDomain(item));
   }
-
+}*/
   async deleteById(id: string): Promise<void> {
     await this.repository.delete(id);
   }
+
+async findAll(filters?: Record<string, unknown>): Promise<${EntityName}[]> {
+  const entities = await this.repository.find(
+    filters ? { where: filters } : {},
+  );
+
+  return entities.map(
+    (entity) => ${EntityName}PersistenceMapper.toDomain(entity),
+  );
 }

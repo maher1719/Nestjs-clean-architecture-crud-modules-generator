@@ -28,3 +28,7 @@ def pascal_case(value: str) -> str:
 
 def change_method_name(field_name: str) -> str:
     return "change" + pascal_case(field_name)
+
+def pascal_case(value: str) -> str:
+    parts = re.split(r"[^a-zA-Z0-9]+", value)
+    return "".join(p[:1].upper() + p[1:] for p in parts if p)

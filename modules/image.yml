@@ -1,0 +1,14 @@
+module: images
+entity:
+  name: Image
+  table: images
+  fields:
+    - name: url
+      type: string
+
+operations:
+  - create
+  - list
+  - get
+  - update
+  - delete

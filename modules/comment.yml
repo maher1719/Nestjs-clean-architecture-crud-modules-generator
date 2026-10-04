@@ -1,0 +1,39 @@
+# modules/comment.yml
+module: comments
+parent: posts                 # ← NEW: aggregate parent's MODULE name
+entity:
+  name: Comment
+  table: comments
+  fields:
+    - name: text
+      type: string
+    - name: postId
+      type: uuid
+    - name: authorId
+      type: uuid
+
+relations:
+  # This is the AGGREGATE parent (must be cascade + non-nullable)
+  - name: post
+    type: many-to-one
+    target: Post
+    targetModule: posts
+    foreignKey: postId
+    nullable: false
+    onDelete: cascade
+
+  # This is just an association (also gets a nested GET, but not the "parent")
+  - name: author
+    type: many-to-one
+    target: User
+    targetModule: users
+    foreignKey: authorId
+    nullable: false
+    onDelete: cascade
+
+operations:
+  - create
+  - list
+  - get
+  - update
+  - delete

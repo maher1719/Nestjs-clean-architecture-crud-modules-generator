@@ -14,6 +14,6 @@ export class List${EntityName}Handler {
   async execute(
     query: List${EntityName}Query,
   ): Promise<${EntityName}[]> {
-    return this.repository.findAll();
+    return this.repository.findAll(query.filters);
   }
 }

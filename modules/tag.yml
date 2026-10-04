@@ -1,0 +1,14 @@
+module: tags
+entity:
+  name: Tag
+  table: tags
+  fields:
+    - name: name
+      type: string
+
+operations:
+  - create
+  - list
+  - get
+  - update
+  - delete

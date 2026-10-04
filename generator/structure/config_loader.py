@@ -23,6 +23,7 @@ def load_config(path: Path) -> Dict[str, Any]:
         config = yaml.safe_load(file)
 
     validate_config(config)
+    validate_aggregate_parent(config)
 
     return config
 
@@ -95,3 +96,45 @@ def validate_config(config: Dict[str, Any]) -> None:
                 f"{', '.join(sorted(invalid_operations))}. "
                 f"Allowed operations are: {', '.join(sorted(ALLOWED_OPERATIONS))}."
             )
+
+def validate_aggregate_parent(config: Dict[str, Any]) -> None:
+    parent = config.get("parent")
+    if not parent:
+        return  # not an aggregate child
+
+    if not isinstance(parent, str) or not parent.strip():
+        raise ValueError(
+            "'parent' must be a non-empty string "
+            "(the parent's module name)."
+        )
+
+    relations = config.get("relations") or []
+
+    # Find the many-to-one relation that targets the parent module
+    parent_relation = None
+    for rel in relations:
+        if not isinstance(rel, dict):
+            continue
+        rel_type = str(rel.get("type", "")).lower()
+        if rel_type == "many-to-one" and rel.get("targetModule") == parent:
+            parent_relation = rel
+            break
+
+    if parent_relation is None:
+        raise ValueError(
+            f"Aggregate child declares parent '{parent}', but no "
+            f"many-to-one relation targets module '{parent}'. "
+            f"Add the many-to-one relation to the parent first."
+        )
+
+    if str(parent_relation.get("onDelete", "")).lower() != "cascade":
+        raise ValueError(
+            f"Aggregate relation to parent '{parent}' must use "
+            f"onDelete: cascade (children are deleted with the parent)."
+        )
+
+    if parent_relation.get("nullable", False):
+        raise ValueError(
+            f"Aggregate relation to parent '{parent}' must be "
+            f"non-nullable (a child must always belong to its parent)."
+        )

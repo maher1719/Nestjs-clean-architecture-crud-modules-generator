@@ -1,0 +1,36 @@
+module: users
+entity:
+  name: User
+  table: users
+  fields:
+    - name: name
+      type: string
+    - name: email
+      type: string
+
+relations:
+  # one-to-many (inverse side — User holds NO foreign key)
+  - name: posts
+    type: one-to-many
+    target: Post
+    targetModule: posts
+    mappedBy: author
+
+  - name: comments
+    type: one-to-many
+    target: Comment
+    targetModule: comments
+    mappedBy: author
+
+  - name: likes
+    type: one-to-many
+    target: Like
+    targetModule: likes
+    mappedBy: user
+
+operations:
+  - create
+  - list
+  - get
+  - update
+  - delete

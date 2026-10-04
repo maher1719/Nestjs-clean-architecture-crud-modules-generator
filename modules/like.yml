@@ -1,0 +1,35 @@
+module: likes
+entity:
+  name: Like
+  table: likes
+  fields:
+    - name: postId
+      type: uuid
+    - name: userId
+      type: uuid
+
+relations:
+  # many-to-one — Like belongs to a post
+  - name: post
+    type: many-to-one
+    target: Post
+    targetModule: posts
+    foreignKey: postId
+    nullable: false
+    onDelete: cascade
+
+  # many-to-one — Like made by a user
+  - name: user
+    type: many-to-one
+    target: User
+    targetModule: users
+    foreignKey: userId
+    nullable: false
+    onDelete: cascade
+
+operations:
+  - create
+  - list
+  - get
+  - update
+  - delete
