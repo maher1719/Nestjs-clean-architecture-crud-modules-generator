@@ -1,108 +1,110 @@
 # 🏗️ NestJS Clean Architecture CRUD Modules Generator
 
-A Python-based CLI tool that automatically scaffolds complete **NestJS modules** following **Clean Architecture**, **Domain-Driven Design (DDD)**, and **CQRS** principles from a simple YAML configuration file.
+> A Python-powered code generator that scaffolds production-grade **NestJS** modules following **Clean Architecture**, **Domain-Driven Design (DDD)**, and **CQRS** — all from a simple YAML definition.
 
-Stop writing repetitive boilerplate for your enterprise NestJS applications. Define your entities in YAML, and let this tool generate the Domain, Application, Infrastructure, and Presentation layers for you—complete with Swagger support!
+Stop writing boilerplate. Define your entity in YAML, run one command, and get a fully-structured, typed, documented module with domain logic, CQRS handlers, TypeORM persistence, DTO validation, Swagger docs, and REST controllers.
+
+---
 
 ## ✨ Features
 
-- **Clean Architecture & DDD:** Generates strictly separated layers (`domain`, `application`, `infrastructure`, `presentation`).
-- **CQRS Pattern:** Automatically creates Command and Query handlers for all CRUD operations.
-- **TypeORM Integration:** Scaffolds ORM entities, repositories, and mappers.
-- **Relational Support:** Handles Foreign Keys and relations (e.g., Many-to-One) across different modules.
-- **Swagger Ready:** Controllers are pre-configured with `@ApiTags` for instant API documentation.
-- **Safe Generation:** Includes a `--dry-run` flag to preview file structures without overwriting existing code.
+| Feature | Description |
+|---|---|
+| 🏛️ **Clean Architecture** | Strict `domain` / `application` / `infrastructure` / `presentation` layering |
+| ⚡ **CQRS** | Separate commands & queries with dedicated handlers |
+| 📝 **YAML-driven** | Declarative entity definitions — no code to write |
+| 🔗 **All 4 relation types** | `many-to-one`, `one-to-many`, `one-to-one`, `many-to-many` |
+| 🧩 **Aggregate support** | Parent validation, cascade rules, nested read routes |
+| 🔁 **PUT vs PATCH** | Full `replace` operation distinct from partial `update` |
+| 📄 **Auto DTOs + validation** | `class-validator` decorators generated per field type |
+| 📚 **Swagger ready** | `@ApiProperty` / `@ApiTags` generated automatically |
+| 🗂️ **Module manifest** | `.generator.manifest.json` tracks every generated module |
+| 📦 **Bulk generation** | Generate an entire folder of YAMLs in one command |
+| 🔒 **Idempotent registration** | Safe re-runs — never duplicates `app.module.ts` imports |
 
 ---
 
-## 📦 Prerequisites
+## 🏛️ What Gets Generated
 
-- **Python 3.8+** (to run the generator scripts)
-- An existing **NestJS** project with `@nestjs/typeorm`, `typeorm`, and `@nestjs/swagger` installed.
+For each YAML definition, the generator produces a complete Clean Architecture module:
 
----
-
-## 🚀 Installation & Setup
-
-1. Clone this repository into your workspace (or add it as a dev tool):
-   ```bash
-   git clone https://github.com/maher1719/Nestjs-clean-architecture-crud-modules-generator.git
-   cd Nestjs-clean-architecture-crud-modules-generator
-   ```
-
-2. (Optional) Install Python dependencies if a `requirements.txt` is provided:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
----
-
-## 🛠️ Usage
-
-Run the `create_structure.py` script and pass the path to your YAML configuration file.
-
-### Standard Generation
-```bash
-python create_structure.py path/to/your/module.yml
+```
+src/modules/<module>/
+├── domain/
+│   ├── entities/            # Rich domain entity (props, factory, getters, updaters)
+│   ├── repositories/        # Abstract repository port
+│   └── exceptions/          # Domain exceptions (e.g. NotFoundException)
+├── application/
+│   ├── commands/            # CQRS write side
+│   │   ├── create-<entity>/
+│   │   ├── update-<entity>/
+│   │   ├── replace-<entity>/
+│   │   └── delete-<entity>/
+│   └── queries/             # CQRS read side
+│       ├── get-<entity>/
+│       └── list-<entity>/
+├── infrastructure/
+│   └── persistence/
+│       ├── typeorm/         # ORM entity (columns + relations)
+│       ├── mappers/         # Domain ↔ ORM mappers
+│       └── repositories/    # TypeORM repository adapter
+├── presentation/
+│   ├── controllers/         # REST controller (+ nested read routes)
+│   ├── dto/                 # Create / Update / Replace DTOs
+│   └── filters/             # Exception filters
+└── <module>.module.ts       # NestJS module wiring
 ```
 
-### Dry Run (Preview Only)
-Use `--dry-run` to validate your YAML and see which files will be created without actually writing to the disk:
+---
+
+## 📦 Installation
+
 ```bash
-python create_structure.py path/to/your/module.yml --dry-run
+# Clone the generator
+git clone https://github.com/maher1719/Nestjs-clean-architecture-crud-modules-generator.git
+cd Nestjs-clean-architecture-crud-modules-generator
+
+# Install Python dependencies
+pip install pyyaml
 ```
+
+> **Requirements:** Python 3.10+ and an existing NestJS project with TypeORM, `class-validator`, and `@nestjs/swagger`.
 
 ---
 
-## 📄 YAML Configuration Examples
+## 🚀 Quick Start
 
-The generator relies on a YAML file to define the module structure, entity fields, relations, and allowed operations.
-
-### Example 1: Basic Module (`organization.yml`)
+### 1. Define your entity in YAML
 
 ```yaml
-module: organizations
+# modules/comment.yml
+module: comments
+parent: posts                       # marks this as an aggregate child
 entity:
-  name: Organization
-  table: organizations
+  name: Comment
+  table: comments
   fields:
-    - name: name
+    - name: text
       type: string
-      orm_type: varchar
-      length: 255
-operations:
-  - create
-  - list
-  - get
-  - update
-  - delete
-```
-
-### Example 2: Module with Relations (`employee.yml`)
-
-This example demonstrates how to link entities across different modules using foreign keys.
-
-```yaml
-module: employees
-entity:
-  name: Employees
-  table: employees
-  fields:
-    - name: organizationId
+    - name: postId
       type: uuid
-    - name: firstName
-      type: string
-    - name: lastName
-      type: string
-    - name: email
-      type: string
+    - name: authorId
+      type: uuid
 
 relations:
-  - name: organization
+  - name: post
     type: many-to-one
-    target: Organization
-    targetModule: organizations
-    foreignKey: organizationId
+    target: Post
+    targetModule: posts
+    foreignKey: postId
+    nullable: false
+    onDelete: cascade
+
+  - name: author
+    type: many-to-one
+    target: User
+    targetModule: users
+    foreignKey: authorId
     nullable: false
     onDelete: restrict
 
@@ -114,61 +116,266 @@ operations:
   - delete
 ```
 
-### Configuration Schema Breakdown:
-| Key | Description |
-| :--- | :--- |
-| `module` | The NestJS module name (used for folder and routing naming). |
-| `entity.name` | The name of the Domain Entity class. |
-| `entity.table` | The database table name. |
-| `fields` | Array of properties for the entity. Supports standard types (`string`, `uuid`, `number`, `boolean`) and TypeORM specific overrides (`orm_type`, `length`). |
-| `relations` | Defines TypeORM relationships (`many-to-one`, `one-to-many`, etc.) and maps them to target modules. |
-| `operations` | Whitelist of CQRS operations to generate (`create`, `list`, `get`, `update`, `delete`). |
+### 2. Generate
+
+```bash
+python -m generator.structure.cli modules/comment.yml --src src
+```
+
+### 3. Done 🎉
+
+You now have a full module with REST endpoints:
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/comments` | Create a comment |
+| `GET` | `/comments` | List all comments |
+| `GET` | `/comments/:id` | Get one comment |
+| `PATCH` | `/comments/:id` | Partial update |
+| `PUT` | `/comments/:id` | Full replace |
+| `DELETE` | `/comments/:id` | Delete |
+| `GET` | `/posts/:postId/comments` | Nested read (auto-generated) |
 
 ---
 
-## 📂 Generated Directory Structure
+## 📖 YAML Configuration Reference
 
-When you run the generator, it creates the following Clean Architecture folder structure inside your NestJS `src/` directory:
+### Top-level keys
 
-```text
-📁 src/
- ┣ 📁 [module_name]/
- ┃ ┣ 📁 application/
- ┃ ┃ ┣ 📁 commands/       # CQRS Commands (Create, Update, Delete)
- ┃ ┃ ┗ 📁 queries/        # CQRS Queries (Get, List)
- ┃ ┣ 📁 domain/
- ┃ ┃ ┣ 📁 entities/       # DDD Entities (Props, Private Constructors)
- ┃ ┃ ┗ 📁 repositories/   # Repository Interfaces
- ┃ ┣ 📁 infrastructure/
- ┃ ┃ ┗ 📁 persistence/    # TypeORM Entities, Mappers, and Repository Implementations
- ┃ ┣ 📁 presentation/
- ┃ ┃ ┣ 📁 controllers/    # NestJS Controllers (with Swagger)
- ┃ ┃ ┗ 📁 dto/            # Data Transfer Objects (Validation)
- ┃ ┗ 📄 [module_name].module.ts  # NestJS Module Definition
+| Key | Type | Description |
+|---|---|---|
+| `module` | `string` | Module/folder name (plural, kebab) |
+| `parent` | `string?` | Parent module name → marks an **aggregate child** |
+| `entity` | `object` | Entity definition (`name`, `table`, `fields`) |
+| `relations` | `list?` | Relationships to other entities |
+| `operations` | `list` | Which endpoints to generate |
+
+### Field types
+
+| Type | TypeScript | TypeORM | Validator |
+|---|---|---|---|
+| `string` | `string` | `varchar(255)` | `@IsString` |
+| `number` | `number` | `integer` | `@IsNumber` |
+| `boolean` | `boolean` | `boolean` | `@IsBoolean` |
+| `date` | `Date` | `timestamptz` | `@IsDateString` |
+| `uuid` | `string` | `uuid` | `@IsUUID` |
+
+Reserved field names (auto-managed): `id`, `createdAt`, `updatedAt`.
+
+### Operations
+
+`create`, `list`, `get`, `update`, `delete`, `replace`
+
+---
+
+## 🔗 Relationships
+
+All four TypeORM relation types are supported. Relations generate ORM decorators, imports, and — where relevant — nested read routes.
+
+### `many-to-one` (owning side — holds the FK)
+
+```yaml
+relations:
+  - name: post
+    type: many-to-one
+    target: Post
+    targetModule: posts
+    foreignKey: postId
+    nullable: false
+    onDelete: cascade        # restrict | cascade | set-null | no-action
+```
+
+### `one-to-many` (inverse side — no FK)
+
+```yaml
+relations:
+  - name: comments
+    type: one-to-many
+    target: Comment
+    targetModule: comments
+    mappedBy: post           # must match the child's many-to-one name
+```
+
+### `one-to-one` (owning side — FK marked `unique`)
+
+```yaml
+relations:
+  - name: profile
+    type: one-to-one
+    target: Profile
+    targetModule: profiles
+    foreignKey: profileId
+    nullable: true
+    onDelete: set-null
+```
+
+### `many-to-many` (junction table)
+
+```yaml
+relations:
+  - name: tags
+    type: many-to-many
+    target: Tag
+    targetModule: tags
+    joinTable: post_tags
+    joinColumn: post_id
+    inverseJoinColumn: tag_id
 ```
 
 ---
-## 🏢 Enterprise & Commercial Licensing
 
-This project is licensed under the **AGPL-3.0 License**. This means it is completely free to use for open-source, educational, and personal projects, provided you comply with the AGPL terms (which require derivative works to remain open-source).
+## 🧩 Aggregates
 
-**Are you an Enterprise or building a closed-source SaaS?**
-If your company wishes to use this generator (and the code it produces) in proprietary, closed-source commercial applications without being bound by the AGPL open-source requirements, you must obtain a **Commercial License**.
+Mark a module as an **aggregate child** with the `parent` key:
 
-A commercial license grants you the right to:
-- Use the generated Clean Architecture modules in closed-source, proprietary products.
-- Keep your application's source code private.
-- Receive priority support and custom template modifications.
+```yaml
+module: comments
+parent: posts
+```
 
-📧 **Contact for Enterprise Pricing:** ba.maher94@gmail.com
+The generator then **validates** the aggregate relationship:
+- ✅ A `many-to-one` relation targeting the parent must exist
+- ✅ That relation must use `onDelete: cascade`
+- ✅ That relation must be non-nullable
 
----
-
-## 📝 License
-
-This project is licensed under the **AGPL-3.0 License**. See the [LICENSE](LICENSE) file for details.
+It also auto-generates a **nested read route** on the child (e.g. `GET /posts/:postId/comments`) so children can be listed through their parent.
 
 ---
 
-*Built with ❤️ by [Maher](https://github.com/maher1719) for the NestJS community.*
+## 💻 CLI Usage
 
+```bash
+# Generate a single module
+python -m generator.structure.cli modules/profile.yml --src src
+
+# Bulk-generate every YAML in a folder
+python -m generator.structure.cli modules/ --src src
+
+# Preview without writing files (also skips the manifest)
+python -m generator.structure.cli modules/ --src src --dry-run
+
+# Overwrite existing generated files
+python -m generator.structure.cli modules/profile.yml --src src --force
+
+# Stop bulk generation at the first error
+python -m generator.structure.cli modules/ --src src --fail-fast
+
+# Custom app.module.ts location & project root
+python -m generator.structure.cli modules/profile.yml \
+  --src src \
+  --app-module src/app.module.ts \
+  --project-root .
+```
+
+### Flags
+
+| Flag | Default | Description |
+|---|---|---|
+| `config` | — | YAML file **or** folder (auto-detected) |
+| `--src` | `src` | Where modules are generated |
+| `--templates` | `templates` | Directory of `.tpl` template files |
+| `--app-module` | `<src>/app.module.ts` | app.module.ts for auto-registration |
+| `--project-root` | CWD | Where `.generator.manifest.json` lives |
+| `--dry-run` | off | Validate/render without writing |
+| `--force` | off | Overwrite existing files |
+| `--fail-fast` | off | Stop bulk on first error |
+
+---
+
+## 🗂️ The Module Manifest
+
+Every successful generation upserts an entry into **`.generator.manifest.json`** at the project root. It records each module's metadata for retrieval, validation, and future reconciliation.
+
+```json
+{
+  "schemaVersion": 1,
+  "generatorVersion": "v2",
+  "modules": {
+    "comments": {
+      "entity": "Comment",
+      "table": "comments",
+      "configPath": "modules/comment.yml",
+      "outputPath": "src/modules/comments",
+      "moduleFile": "src/modules/comments/comments.module.ts",
+      "parent": "posts",
+      "relations": [
+        { "type": "many-to-one", "target": "Post", "targetModule": "posts" }
+      ],
+      "operations": ["create", "list", "get", "update", "delete"],
+      "generatedAt": "2026-03-15T12:00:00+00:00"
+    }
+  }
+}
+```
+
+> 📌 **Commit this file.** It's the team-visible inventory of everything the generator has produced — no modules "popping out of nowhere."
+
+---
+
+## 🧠 Generator Architecture
+
+The generator itself is a modular Python package:
+
+```
+generator/
+├── structure/
+│   ├── cli.py                 # Entry point (single + bulk)
+│   ├── config_loader.py       # YAML loading + validation
+│   ├── generator.py           # Orchestrates generation
+│   ├── context.py             # Builds the template context
+│   ├── output_mapper.py       # Template → output path mapping
+│   ├── rendering.py           # Template rendering
+│   ├── manifest.py            # .generator.manifest.json upsert
+│   ├── app_module_updater.py  # Idempotent app.module.ts registration
+│   ├── fields/                # Field builder package
+│   │   ├── normalization.py   #   normalize fields/relations
+│   │   ├── types.py           #   ts_type, typeorm_type
+│   │   ├── domain.py          #   entity/command/handler builders
+│   │   ├── dto.py             #   DTO + validator + swagger builders
+│   │   ├── orm.py             #   ORM columns + imports
+│   │   ├── mapping.py         #   domain ↔ ORM field mapping
+│   │   └── registry.py        #   build_field_context orchestrator
+│   └── relations/             # Relation builders
+│       ├── many_to_one.py
+│       ├── one_to_many.py
+│       ├── one_to_one.py
+│       ├── many_to_many.py
+│       └── registry.py        # relation dispatcher
+└── templates/                 # .tpl template sources
+```
+
+---
+
+## 🗺️ Roadmap
+
+### ✅ v1 — Foundations
+Clean Architecture CRUD, CQRS, TypeORM, all 4 relation types, Swagger, validation.
+
+### ✅ v2 — Aggregates & Tooling
+`replace`/PUT operation, parent validation, nested read routes, `fields/` package split, module manifest, bulk generation, idempotent `app.module.ts` registration.
+
+### 🔜 v3 — List Query Enhancements
+- **Pagination** — `?page=2&limit=20` with a `{ data, total, page, limit }` response
+- **Filtering** — whitelisted query-param filters
+- **Sorting** — `?sortBy=createdAt&order=desc`
+
+### 🔮 v4 — Embedding
+- `?include=comments` to embed related aggregates in responses
+
+---
+
+## 📄 License
+
+This project is licensed under the **AGPL-3.0 License**.
+
+**Enterprise / commercial use:** If you wish to use this generator in proprietary, closed-source products without the AGPL open-source obligations, a commercial license is available. Contact the maintainer for details.
+
+---
+
+## 🙌 Acknowledgements
+
+Built with a focus on clean, maintainable code generation — so you can focus on your domain, not the boilerplate.
+
+---
+
+*Made with ❤️ by [maher1719](https://github.com/maher1719)*
