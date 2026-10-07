@@ -1,6 +1,6 @@
 # modules/comment.yml
 module: comments
-parent: posts                 # ← NEW: aggregate parent's MODULE name
+parent: posts                 
 entity:
   name: Comment
   table: comments

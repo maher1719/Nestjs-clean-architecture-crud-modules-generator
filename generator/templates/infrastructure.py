@@ -70,14 +70,14 @@ export class TypeOrm${EntityName}Repository extends ${EntityName}Repository {
   }
 
 async findAll(filters?: Record<string, unknown>): Promise<${EntityName}[]> {
-  const entities = await this.repository.find(
-    filters ? { where: filters } : {},
-  );
+    const entities = await this.repository.find(
+      filters ? { where: filters } : {},
+    );
 
-  return entities.map(
-    (entity) => ${EntityName}PersistenceMapper.toDomain(entity),
-  );
-}
+    return entities.map(
+      (entity) => ${EntityName}PersistenceMapper.toDomain(entity),
+    );
+  }
 }
 """
 

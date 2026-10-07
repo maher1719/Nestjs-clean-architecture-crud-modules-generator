@@ -2,11 +2,12 @@ from pathlib import Path
 from typing import Any, Dict
 
 from ..filesystem import ensure_directory
-from .app_module_updater import update_app_module # <-- IMPORT THIS
+from .app_module_updater import register_module 
 from .config_loader import validate_config
 from .context import build_context,build_nested_controller_specs,build_nested_module_context
 from .output_mapper import build_output_mapping
 from .rendering import load_template, render_template
+
 
 
 def generate_module(
@@ -98,10 +99,12 @@ def generate_module(
 
         destination.write_text(rendered, encoding="utf-8")
         print(f"[created] {destination}")
-    update_app_module(
-        app_module_path=app_module_path,
-        module_file_path=module_file_path,
-        module_class_name=module_class_name,
-        module_name=module_name,
-        dry_run=dry_run,
-    )
+    if app_module_path is not None:
+        module_class_name = f"{entity_name}Module"
+        module_file_path = module_root / f"{module_name}.module.ts"
+        register_module(
+            app_module_path,
+            module_class_name,
+            module_file_path,
+            dry_run=dry_run,
+        )
