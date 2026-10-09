@@ -1,3 +1,8 @@
+```markdown
+[![PyPI version](https://img.shields.io/pypi/v/nestjs-clean-gen.svg)](https://pypi.org/project/nestjs-clean-gen/)
+[![Python 3.10+](https://img.shields.io/pypi/pyversions/nestjs-clean-gen.svg)](https://pypi.org/project/nestjs-clean-gen/)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+
 # 🏗️ NestJS Clean Architecture CRUD Generator
 
 > **Stop writing boilerplate.** Generate production-grade, strictly-typed **NestJS** modules following **Clean Architecture**, **Domain-Driven Design (DDD)**, and **CQRS** from a single YAML file.
@@ -20,6 +25,17 @@ Define your entity, run one command, and get a fully structured module with doma
 | 🗂️ **Module Manifest** | `.generator.manifest.json` tracks every generated module for easy retrieval. |
 | 📦 **Bulk Generation** | Point at a folder of YAMLs and generate your entire domain at once. |
 | 🔒 **Idempotent** | Safe re-runs; never duplicates imports in `app.module.ts`. |
+
+---
+
+## 📥 Installation
+
+Install globally using `pipx` (recommended for CLI tools) or `pip`:
+
+```bash
+pipx install nestjs-clean-gen
+# or
+pip install nestjs-clean-gen
 
 ---
 
