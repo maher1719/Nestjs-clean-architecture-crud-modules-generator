@@ -77,10 +77,10 @@ operations:
 
 ```bash
 # Generate a single module
-python -m generator.structure.cli modules/comment.yml --src src/modules
+python -m generator.structure.cli modules/comment.yml --src src/
 
 # Bulk generate an entire folder
-python -m generator.structure.cli modules/ --src src/modules --force
+python -m generator.structure.cli modules/ --src src/ --force
 ```
 
 ### 3. Enjoy your API 🎉
