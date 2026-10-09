@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nestjs-clean-gen"
-version = "1.0.0"
+version = "1.0.1"
 authors = [
   { name="Maher Ben Abdessalem", email="ba.maher94@gmail.com" },
 ]
 description = "Generate production-grade NestJS Clean Architecture & DDD modules from YAML."
 readme = "README.md"
-license = { file = "LICENCE" }
+license = { file = "LICENSE" }
 requires-python = ">=3.10"
 dependencies = [
     "PyYAML>=6.0",
