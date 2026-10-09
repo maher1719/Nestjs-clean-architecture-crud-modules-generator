@@ -4,6 +4,8 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { List${EntityName}Query } from '../../application/queries/list-${entityKebab}/list-${entityKebab}.query';
 import { List${EntityName}Handler } from '../../application/queries/list-${entityKebab}/list-${entityKebab}.handler';
 
+
+
 @ApiTags('${parentRoute} > ${childRoute}')
 @Controller('${parentRoute}/:${fkParam}/${childRoute}')
 export class ${NestedControllerName} {
@@ -17,7 +19,7 @@ export class ${NestedControllerName} {
     @Param('${fkParam}') ${fkParam}: string,
   ) {
     return this.listHandler.execute(
-      new List${EntityName}Query({ ${fkField}: ${fkParam} }),
+      new List${EntityName}Query({ filters: { ${fkField}: ${fkParam} } }),
     );
   }
 }

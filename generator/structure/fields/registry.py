@@ -20,6 +20,12 @@ from .dto import (
     build_update_dto_fields,
     build_replace_dto_fields,
     build_validator_imports,
+    build_list_filter_assignments,
+    build_list_filter_dto_fields,
+    build_list_filter_validator_imports,
+    build_sortable_fields_list,
+    build_list_filter_validator_imports,
+    
 )
 from .mapping import (
     build_domain_to_orm_fields,
@@ -51,4 +57,9 @@ def build_field_context(fields: List[Field]) -> Dict[str, str]:
         "replaceControllerArguments": build_replace_controller_arguments(fields),
         "replaceValidatorImports": build_validator_imports(fields, required=True),
         "replaceDtoFields": build_replace_dto_fields(fields),
+
+        "listFilterDtoFields": build_list_filter_dto_fields(fields),
+        "sortableFieldsList": build_sortable_fields_list(fields),
+        "listFilterValidatorImports": build_list_filter_validator_imports(fields),
+        "listFilterAssignments": build_list_filter_assignments(fields),
     }

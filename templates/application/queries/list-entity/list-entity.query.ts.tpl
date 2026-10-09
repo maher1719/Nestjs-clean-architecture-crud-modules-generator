@@ -1,5 +1,7 @@
+import { ListOptions } from '../../../domain/repositories/list-options';
+
 export class List${EntityName}Query {
   constructor(
-    public readonly filters?: Record<string, unknown>,
+    public readonly options: ListOptions = {},
   ) {}
 }

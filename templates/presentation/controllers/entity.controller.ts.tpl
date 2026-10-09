@@ -7,6 +7,7 @@
   Post,
   Put,
   Patch,
+  Query,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
@@ -33,6 +34,8 @@ import { Create${EntityName}Dto } from '../dto/create-${entityKebab}.dto';
 import { Update${EntityName}Dto } from '../dto/update-${entityKebab}.dto';
 import { Replace${EntityName}Dto } from '../dto/replace-${entityKebab}.dto';
 
+import { List${EntityName}QueryDto } from '../dto/list-${entityKebab}.dto';
+import { ListOptions } from '../../domain/repositories/list-options';
 
 @ApiTags('${moduleName}')
 @Controller('${routeName}')
@@ -61,11 +64,22 @@ ${createControllerArguments}
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all ${moduleName}' })
-  @ApiResponse({ status: 200, description: 'List of all ${moduleName}.' })
-  async findAll() {
+  async findAll(
+    @Query() query: List${EntityName}QueryDto,
+  ) {
+    const filters: Record<string, unknown> = {};
+  ${listFilterAssignments}
+
+    const options: ListOptions = {
+      page: query.page,
+      limit: query.limit,
+      sortBy: query.sortBy,
+      order: query.order,
+      filters,
+    };
+
     return this.listHandler.execute(
-      new List${EntityName}Query(),
+      new List${EntityName}Query(options),
     );
   }
 

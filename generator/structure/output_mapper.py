@@ -17,6 +17,8 @@ def build_output_mapping(
         "domain/repositories/entity.repository.ts.tpl": (
             f"domain/repositories/{entity_kebab}.repository.ts"
         ),
+        "domain/repositories/list-options.ts.tpl":
+            "domain/repositories/list-options.ts",
 
         # Application commands
         "application/commands/create-entity/create-entity.command.ts.tpl": (
@@ -57,6 +59,9 @@ def build_output_mapping(
         # Presentation replace DTO
         "presentation/dto/replace-entity.dto.ts.tpl": (
             f"presentation/dto/replace-{entity_kebab}.dto.ts"
+        ),
+        "presentation/dto/list-entity.dto.ts.tpl":(
+            f"presentation/dto/list-{entity_kebab}.dto.ts"
         ),
 
         # Application queries

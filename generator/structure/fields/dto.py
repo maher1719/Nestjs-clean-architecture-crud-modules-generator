@@ -92,3 +92,56 @@ def build_update_dto_fields(fields: List[Field]) -> str:
             f"  {name}?: {type_name};"
         )
     return "\n\n".join(result)
+
+def build_list_filter_dto_fields(fields: List[Field]) -> str:
+    lines = []
+    for field in fields:
+        if not field.get("filterable", False):
+            continue
+        name = field["name"]
+        field_type = str(field.get("type", "string")).lower()
+        type_name = ts_type(field)
+        validator = validator_name(field_type)
+        swagger_options = swagger_property_options(field_type)
+        api = (
+            f"@ApiPropertyOptional({{{swagger_options}}})"
+            if swagger_options
+            else "@ApiPropertyOptional()"
+        )
+        lines.append(
+            f"  {api}\n"
+            f"  @IsOptional()\n"
+            f"  @{validator}()\n"
+            f"  {name}?: {type_name};\n"
+        )
+    return "\n".join(lines)
+
+
+def build_sortable_fields_list(fields: List[Field]) -> str:
+    names = ["'id'", "'createdAt'", "'updatedAt'"]
+    for field in fields:
+        if field.get("sortable", False):
+            names.append(f"'{field['name']}'")
+    return ", ".join(names)
+
+
+def build_list_filter_validator_imports(fields: List[Field]) -> str:
+    imports = set()
+    for field in fields:
+        if field.get("filterable", False):
+            imports.add(validator_name(str(field.get("type", "string")).lower()))
+    if not imports:
+        return ""
+    return ",\n".join(f"  {i}" for i in sorted(imports)) + ","
+
+
+def build_list_filter_assignments(fields: List[Field]) -> str:
+    lines = []
+    for field in fields:
+        if not field.get("filterable", False):
+            continue
+        name = field["name"]
+        lines.append(
+            f"  if (query.{name} !== undefined) filters['{name}'] = query.{name};"
+        )
+    return "\n".join(lines)

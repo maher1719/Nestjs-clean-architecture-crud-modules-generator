@@ -9,9 +9,10 @@ entity:
       type: string
     - name: postId
       type: uuid
+      filterable: true
     - name: authorId
       type: uuid
-
+      filterable: true
 relations:
   # This is the AGGREGATE parent (must be cascade + non-nullable)
   - name: post
