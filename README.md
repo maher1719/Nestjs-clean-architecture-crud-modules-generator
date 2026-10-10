@@ -35,6 +35,7 @@ Install globally using `pipx` (recommended for CLI tools) or `pip`:
 pipx install nestjs-clean-gen
 # or
 pip install nestjs-clean-gen
+```
 
 ---
 
